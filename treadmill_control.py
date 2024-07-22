@@ -45,18 +45,10 @@ class treadmill_control():
 			except ValueError:
 				print("Not a valid number")
 
-
 	def input_thread(self):
 		self.t = threading.Thread(target=self.user_input)
 		self.t.daemon = True
 		self.t.start()
-
-	def button_presses(self):
-		if self.button.is_pressed:
-			if self.terminal_control:
-				self.terminal_control = False
-			else:
-				self.terminal_control = True
 
 	def run(self):
 		self.ser.off()
@@ -71,31 +63,29 @@ class treadmill_control():
 			self.const_signal()
 			self.pause()
 			print(f"Current level is {x/100}")
-		while True:
-			self.button_presses()
-			if self.terminal_control:	
-				if self.l >= 0 and self.l <= 8.0:
-					self.var_signal(self.l)
+		while True:	
+			if self.l >= 0 and self.l <= 8.0:
+				self.var_signal(self.l)
+				self.pause()
+				self.var_signal(self.l)
+				self.pause()
+				self.const_signal()
+				self.pause()
+				self.const_signal()
+				self.pause()
+				print(f"Current level is {self.l}")
+			else: 
+				print("You have entered a level which the Treadmill cannot reach(Max is 8)")
+				while self.l > 8.0 or self.l < 0:
+					self.var_signal(self.speed)
 					self.pause()
-					self.var_signal(self.l)
+					self.var_signal(self.speed)
 					self.pause()
 					self.const_signal()
 					self.pause()
 					self.const_signal()
 					self.pause()
-					print(f"Current level is {self.l}")
-				else: 
-					print("You have entered a level which the Treadmill cannot reach(Max is 8)")
-					while self.l > 8.0 or self.l < 0:
-						self.var_signal(self.speed)
-						self.pause()
-						self.var_signal(self.speed)
-						self.pause()
-						self.const_signal()
-						self.pause()
-						self.const_signal()
-						self.pause()
-						print(f"Running at {self.speed}")
+					print(f"Running at {self.speed}")
 
 	def stop(self):
 		print("Stopping the Treadmill")
